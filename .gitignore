@@ -1,0 +1,28 @@
+# Virtual Environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+
+# Database
+*.db
+
+# Power BI cache
+*.pbix.autosave
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+temp.py
+Sample_data.zip

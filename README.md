@@ -79,7 +79,7 @@ Raw tables (`core_banking_transactions`, `atm_logs`) are also imported directly 
 - Summary strip: Peak Hour, Highest Channel, Failed Transactions, Total Branches
 
 Built using a mix of native Power BI aggregation (drag-and-drop on raw columns) and a small set of DAX measures — used only where a ratio or average couldn't be derived from a raw column directly.
-
+![Dashboard](Dashboard.png)   
 ---
 
 ## 🔍 Key Insights

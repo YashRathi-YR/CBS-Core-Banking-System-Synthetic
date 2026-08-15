@@ -17,6 +17,10 @@ IF OBJECT_ID('dbo.vw_peak_transaction_hours', 'V') IS NOT NULL
     DROP VIEW dbo.vw_peak_transaction_hours;
 GO
 
+IF OBJECT_ID('dbo.vw_atm_transaction_details','V') IS NOT NULL
+    DROP VIEW dbo.vw_atm_transaction_details;
+GO
+
 IF OBJECT_ID('dbo.vw_atm_performance', 'V') IS NOT NULL
     DROP VIEW dbo.vw_atm_performance;
 GO
@@ -110,22 +114,15 @@ SELECT
     t.tnx_id,
     t.account_id,
     t.amount,
-    t.tnx_status,
+    t.tnx_status          AS bank_status,
     t.tnx_timestamp,
-    t.atm_id,
+    a.atm_id,
     a.location,
-    a.avg_response_time_ms
+    a.response_time_ms,
+    a.withdrawal_amount
 FROM dbo.core_banking_transactions t
-INNER JOIN (
-    -- Aggregate atm_logs to one row per ATM
-    SELECT
-        atm_id,
-        location,
-        AVG(response_time_ms) AS avg_response_time_ms,
-        COUNT(*)              AS total_atm_transactions
-    FROM dbo.atm_logs
-    GROUP BY atm_id, location
-) a ON t.atm_id = a.atm_id
+INNER JOIN dbo.atm_logs a
+    ON t.tnx_id = a.tnx_id    -- joining on tnx_id now, not atm_id
 WHERE t.channel = 'ATM';
 GO
 

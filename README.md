@@ -1,113 +1,127 @@
-# 🏦 Banking Analytics & System Monitoring (SQL + Python + Power BI)
+# 🏦 Banking Analytics System (SQL + Python + Power BI)
 
 ## 📌 Project Overview
+
 In real-world banking environments, data privacy restrictions limit the use of production data for analytics and learning.
 
-To overcome this, I built a **simulated core banking system** with 100K+ synthetic records, replicating transaction flows, ATM operations, and system replication behavior.
+To work around this, I built a **simulated core banking system** — a Python-generated dataset of 100K+ transactions and 30K+ ATM logs, backed by a SQL Server database with proper relational integrity, and visualized through an interactive Power BI dashboard.
 
-This project demonstrates **end-to-end data analytics**, from database design and data generation to SQL analysis and dashboard visualization.
+This project demonstrates **end-to-end data engineering and analytics**: schema design, incremental data loading, SQL view creation, and dashboard building with DAX.
 
 ---
 
 ## 🏗️ Architecture
 
-Python → SQL Database → SQL Views → Power BI Dashboard
+```
+
+Python (data generation)
+↓
+SQL Server (CBS database)
+↓
+SQL Views (pre-aggregated reporting layer)
+↓
+Power BI (interactive dashboard)
+
+````
 
 ---
 
 ## 🗄️ Database Design
 
-The system consists of multiple relational tables:
+The system uses **two related tables**, intentionally kept minimal so every piece of data serves a purpose:
 
-- **core_banking_transactions** → transaction details across channels  
-- **atm_logs** → ATM activity and usage  
-- **interest_logs** → interest-related entries  
-- **replication_metrics** → system replication lag across environments  
+| Table | Purpose | Row Count |
+|---|---|---|
+| `core_banking_transactions` | Central transaction record across all channels (Online, ATM, Branch) | 100K+ |
+| `atm_logs` | Machine-level ATM log data, generated from CBT's ATM transactions | 30K+ |
 
----
+**Relationship:** `atm_logs.tnx_id` is a foreign key referencing `core_banking_transactions.tnx_id`. Every ATM log entry corresponds to exactly one verified bank transaction — status, timestamp, and ATM assignment are consistent across both tables.
 
-## ⚙️ Data Generation
-
-- Generated **100K+ records using Python**
-- Simulated:
-  - Transaction distribution (ATM, Online, Branch)
-  - Peak-hour transaction spikes
-  - Failure scenarios
-  - Replication lag across PR, DR, NR environments
+Branch-level reporting uses `branch_id` from `core_banking_transactions` directly, the same way ATM locations are mapped from `atm_id` — each ID maps to a fixed branch, so branch performance can be aggregated consistently.
 
 ---
 
-## 📊 SQL Analysis
+## ⚙️ Data Generation & Pipeline
 
-Performed advanced SQL analysis using:
-
-- CTEs (Common Table Expressions)
-- Window Functions
-- Aggregations
-- Views for reporting
-
-### Key Analysis:
-- Transaction trends by hour and channel  
-- Success vs failure rate  
-- Top accounts by transaction value  
-- Replication lag monitoring  
+- Built with **Python (Pandas, NumPy, SQLAlchemy)**
+- `core_banking_transactions` generates first — 100K rows with:
+  - Realistic peak-hour distribution (evening-heavy load)
+  - Channel split: Online 40%, ATM 35%, Branch 25%
+  - ~5% simulated failure rate
+- `atm_logs` reads ATM-channel rows directly from `core_banking_transactions` and builds machine-level logs from them — response time, location, and status are derived from the linked transaction, not generated independently
+- **Incremental loading**: each script reads `MAX(tnx_id)` before inserting, so re-running the pipeline appends new data instead of failing on duplicate keys or wiping existing records
+- `Main.py` orchestrates the full pipeline in the correct dependency order (CBT → ATM logs)
 
 ---
 
-## 📈 Dashboards (Power BI)
+## 📊 SQL Layer
 
-Built interactive dashboards to monitor:
+Three SQL views back the Power BI model:
 
-### 1. Core Banking Transactions
-- Total transactions (100K+)
-- Channel distribution
-- Transaction status breakdown
-- Hourly transaction trends
+- `vw_transaction_failure_rate` — uses a window function (`SUM() OVER()`) to calculate failure percentage
+- `vw_atm_performance` — average response time and failure count grouped by ATM and location
+- `vw_top_accounts` — top 10 accounts by total transaction value
 
-### 2. System Performance & Replication Monitoring
-- Replication lag across environments (PR, DR, NR)
-- Transaction volume vs replication delay
-- Location-based performance metrics
+Raw tables (`core_banking_transactions`, `atm_logs`) are also imported directly into Power BI so DAX can handle dynamic aggregations and cross-filtering that static views can't provide.
+
+---
+
+## 📈 Dashboard (Power BI)
+
+**Core Banking Transaction Overview**
+
+- KPI cards: Total Transactions, Total Amount, Success Rate, Avg Transaction Amount
+- Transactions by Channel (bar chart)
+- Hourly Transaction Trend (line chart, shows peak-hour load)
+- Transaction Status Breakdown (donut: Success vs Failed)
+- Top Branches by Transaction Volume
+- Daily Transaction Trend
+- Summary strip: Peak Hour, Highest Channel, Failed Transactions, Total Branches
+
+Built using a mix of native Power BI aggregation (drag-and-drop on raw columns) and a small set of DAX measures — used only where a ratio or average couldn't be derived from a raw column directly.
 
 ---
 
 ## 🔍 Key Insights
 
-- Peak transaction volume reached **~20K/hour**
-- Online channel contributes highest transaction share (~40%)
-- Transaction failure rate ~5%
-- Replication lag peaked at **43 seconds**, indicating potential system bottlenecks
+- Evening hours show the clearest transaction spike, consistent with the simulated peak-hour distribution
+- Online is the highest-volume channel, followed by ATM and Branch
+- Overall transaction failure rate holds steady around ~5%, matching the generated distribution
+- ATM response times increase noticeably for failed transactions compared to successful ones
+- Transaction volume varies meaningfully across branches, visible in the top-branches breakdown
 
 ---
 
 ## 🛠️ Tools & Technologies
 
-- SQL (Advanced Queries, Views)
-- Python (Data Generation - Pandas, NumPy)
-- Power BI (Dashboarding, DAX)
-- Excel (Validation)
-  
+- **SQL Server** — schema design, primary/foreign keys, views, window functions
+- **Python** — Pandas, NumPy, SQLAlchemy for data generation and incremental loading
+- **Power BI** — data modeling, relationships, DAX measures, dashboard design
+
 ---
 
 ## 🚀 How to Run
 
-1. Run `schema.sql` to create tables  
-2. Execute python files to populate data  
-3. Run SQL queries/views  
-4. Open Power BI file (`.pbix`)  
+1. Run `Schema_new.sql` to create the database and tables
+2. Run `python Main.py` — this orchestrates the full data generation pipeline:
+   - `Core_banking_transactions.py` (must run first)
+   - `Atm_logs.py` (reads from CBT, runs second)
+3. Run `Views_new.sql` to create the reporting views
+4. Open the Power BI file and refresh the data connection
+
+Re-running `Main.py` is safe — the pipeline uses incremental loading and will append new data rather than duplicate or overwrite existing records.
 
 ---
 
 ## 💡 Key Learnings
 
-- Designing scalable relational databases  
-- Simulating real-world enterprise data  
-- Performing performance monitoring using SQL  
-- Building business-focused dashboards  
+- Designing relational schemas with proper primary/foreign key constraints, and understanding why a primary key choice can break at scale (learned this directly from a duplicate-key production error)
+- Building genuinely correlated datasets — deriving one table from another (`atm_logs` from `core_banking_transactions`) instead of generating disconnected data that merely shares a key range
+- Implementing incremental data loading (`MAX(id) + 1`) instead of relying on destructive truncate-and-reload patterns
+- Knowing when DAX is necessary versus when native Power BI aggregation on raw columns is sufficient
 
 ---
 
 ## 📬 Connect With Me
 
-- LinkedIn: https://www.linkedin.com/in/deepak-tetame-198932211
-- GitHub: https://github.com/Deepak-Tetame
+- LinkedIn: https://www.linkedin.com/in/yash-rathi-024b30235/

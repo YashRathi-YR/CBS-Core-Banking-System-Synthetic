@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="560" viewBox="0 0 500 560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#102A46" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#07182A" stop-opacity="0.00"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2F6DB2"/>
+      <stop offset="1" stop-color="#0D315A"/>
+    </linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#24558A"/>
+      <stop offset="1" stop-color="#0B2948"/>
+    </linearGradient>
+    <linearGradient id="column" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0A2949"/>
+      <stop offset="0.45" stop-color="#35699A"/>
+      <stop offset="0.65" stop-color="#173F68"/>
+      <stop offset="1" stop-color="#071D35"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A4D7D"/>
+      <stop offset="1" stop-color="#081D35"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Transparent background with a subtle navy atmospheric glow -->
+  <rect width="500" height="560" fill="url(#bg)"/>
+
+  <!-- cloud -->
+  <g fill="#244E79" opacity="0.75">
+    <ellipse cx="350" cy="65" rx="58" ry="20"/>
+    <ellipse cx="390" cy="52" rx="42" ry="25"/>
+    <ellipse cx="420" cy="68" rx="52" ry="18"/>
+  </g>
+
+  <!-- left tree -->
+  <g opacity="0.9">
+    <path d="M65 485 C66 420 68 355 72 305" stroke="#0A2947" stroke-width="13" fill="none"/>
+    <path d="M70 355 C45 335 35 300 58 275 C79 295 88 324 70 355Z" fill="#16466F"/>
+    <path d="M70 395 C38 380 27 343 52 319 C77 337 87 366 70 395Z" fill="#1C527E"/>
+    <path d="M73 438 C45 420 40 388 62 367 C84 387 91 414 73 438Z" fill="#16466F"/>
+  </g>
+
+  <!-- right tree -->
+  <g opacity="0.9">
+    <path d="M430 485 C432 420 434 355 438 310" stroke="#0A2947" stroke-width="13" fill="none"/>
+    <path d="M438 355 C410 338 401 303 424 279 C447 297 455 326 438 355Z" fill="#16466F"/>
+    <path d="M438 398 C408 382 401 348 425 325 C449 343 456 370 438 398Z" fill="#1B507A"/>
+    <path d="M438 440 C413 425 407 394 430 373 C451 392 455 417 438 440Z" fill="#16466F"/>
+  </g>
+
+  <!-- bank glow -->
+  <path d="M92 185 L250 92 L408 185 L408 205 L92 205Z" fill="#2B65A2" opacity="0.18" filter="url(#glow)"/>
+
+  <!-- triangular pediment -->
+  <path d="M78 190 L250 92 L422 190 L405 212 L95 212 Z" fill="url(#roof)" stroke="#3977B8" stroke-width="4"/>
+  <path d="M107 184 L250 111 L393 184 Z" fill="#173F68" stroke="#4A83BE" stroke-width="3"/>
+
+  <!-- pediment inset -->
+  <path d="M151 180 L250 130 L349 180 Z" fill="#0E2E50" stroke="#2E6094" stroke-width="3"/>
+
+  <!-- BANK sign -->
+  <rect x="177" y="179" width="146" height="48" rx="5" fill="#0B2744" stroke="#3B72A7" stroke-width="3"/>
+  <text x="250" y="210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-size="25" font-weight="700" letter-spacing="2" fill="#9BB9D5">BANK</text>
+
+  <!-- roof base -->
+  <rect x="78" y="218" width="344" height="25" rx="3" fill="#0B2949" stroke="#2F659A" stroke-width="4"/>
+
+  <!-- columns -->
+  <g>
+    <rect x="111" y="241" width="54" height="190" rx="5" fill="url(#column)" stroke="#2E5F8F" stroke-width="3"/>
+    <rect x="191" y="241" width="54" height="190" rx="5" fill="url(#column)" stroke="#2E5F8F" stroke-width="3"/>
+    <rect x="271" y="241" width="54" height="190" rx="5" fill="url(#column)" stroke="#2E5F8F" stroke-width="3"/>
+    <rect x="351" y="241" width="54" height="190" rx="5" fill="url(#column)" stroke="#2E5F8F" stroke-width="3"/>
+
+    <!-- capitals -->
+    <g fill="#2A5D91" stroke="#4B82B7" stroke-width="2">
+      <rect x="101" y="235" width="74" height="15" rx="2"/>
+      <rect x="181" y="235" width="74" height="15" rx="2"/>
+      <rect x="261" y="235" width="74" height="15" rx="2"/>
+      <rect x="341" y="235" width="74" height="15" rx="2"/>
+    </g>
+
+    <!-- bases -->
+    <g fill="#153E66" stroke="#3A72A6" stroke-width="2">
+      <rect x="99" y="427" width="78" height="17" rx="2"/>
+      <rect x="179" y="427" width="78" height="17" rx="2"/>
+      <rect x="259" y="427" width="78" height="17" rx="2"/>
+      <rect x="339" y="427" width="78" height="17" rx="2"/>
+    </g>
+  </g>
+
+  <!-- lower steps -->
+  <path d="M82 447 H418 L442 466 H58 Z" fill="url(#stone)" stroke="#3B72A7" stroke-width="3"/>
+  <path d="M62 466 H438 L456 487 H44 Z" fill="#123A60" stroke="#315F8C" stroke-width="3"/>
+  <path d="M40 488 H460 L478 510 H22 Z" fill="url(#ground)" stroke="#2B5D8C" stroke-width="3"/>
+
+  <!-- ground highlights -->
+  <path d="M28 520 C125 505 177 532 250 518 C330 504 387 524 472 508"
+        fill="none" stroke="#2D689D" stroke-width="5" opacity="0.65"/>
+  <path d="M48 535 C140 521 190 546 265 531 C342 517 402 539 458 526"
+        fill="none" stroke="#123D64" stroke-width="8" opacity="0.9"/>
+
+  <!-- subtle architectural highlights -->
+  <g fill="#6B9BC4" opacity="0.45">
+    <circle cx="250" cy="151" r="5"/>
+    <circle cx="250" cy="164" r="3"/>
+  </g>
+</svg>

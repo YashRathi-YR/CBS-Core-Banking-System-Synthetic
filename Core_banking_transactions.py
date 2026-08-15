@@ -45,7 +45,7 @@ for _ in range(num_rows):
     random_day = start_date + timedelta(days=random.randint(0, 29))
     hour = np.random.choice(
         [3,7,10, 11, 12, 18, 19, 20, 21, 23],
-        p=[0.01,0.15,0.08, 0.08, 0.08, 0.18, 0.20, 0.20, 0.10, 0.08]
+        p=[0.01,0.12,0.08, 0.08, 0.08, 0.17, 0.20, 0.18, 0.06, 0.02]
     )
     minute = random.randint(0, 59)
     second = random.randint(0, 59)

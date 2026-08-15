@@ -14,13 +14,13 @@ This project demonstrates **end-to-end data engineering and analytics**: schema 
 
 ```
 
-Python (data generation)
+Main.py (single entry point)
+├── Schema\_new.sql        → creates database + tables
+├── Core\_banking\_transactions.py  → generates & inserts CBT data
+├── Atm\_logs.py            → derives ATM logs from CBT
+└── Views\_new.sql          → creates reporting views
 ↓
-SQL Server (CBS database)
-↓
-SQL Views (pre-aggregated reporting layer)
-↓
-Power BI (interactive dashboard)
+Power BI Dashboard
 
 ````
 
@@ -102,14 +102,19 @@ Built using a mix of native Power BI aggregation (drag-and-drop on raw columns) 
 
 ## 🚀 How to Run
 
-1. Run `Schema_new.sql` to create the database and tables
-2. Run `python Main.py` — this orchestrates the full data generation pipeline:
-   - `Core_banking_transactions.py` (must run first)
-   - `Atm_logs.py` (reads from CBT, runs second)
-3. Run `Views_new.sql` to create the reporting views
-4. Open the Power BI file and refresh the data connection
+```bash
+python Main.py
+````
 
-Re-running `Main.py` is safe — the pipeline uses incremental loading and will append new data rather than duplicate or overwrite existing records.
+That's it — `Main.py` orchestrates the entire pipeline in the correct order:
+
+1. Executes `Schema_new.sql` to create the database and tables (connects via `master` first, so this works even on a completely fresh SQL Server instance where `CBS` doesn't exist yet)
+2. Runs `Core_banking_transactions.py`, then `Atm_logs.py` (in that dependency order)
+3. Executes `Views_new.sql` to create the reporting views
+
+Once it completes, the database is ready — open the Power BI file and refresh the data connection.
+
+Re-running `Main.py` is safe. Table creation is guarded (`IF OBJECT_ID ... IS NULL`), and the Python scripts use incremental loading (`MAX(id) + 1`), so nothing gets duplicated or wiped on a second run.
 
 ---
 
@@ -118,6 +123,7 @@ Re-running `Main.py` is safe — the pipeline uses incremental loading and will 
 - Designing relational schemas with proper primary/foreign key constraints, and understanding why a primary key choice can break at scale (learned this directly from a duplicate-key production error)
 - Building genuinely correlated datasets — deriving one table from another (`atm_logs` from `core_banking_transactions`) instead of generating disconnected data that merely shares a key range
 - Implementing incremental data loading (`MAX(id) + 1`) instead of relying on destructive truncate-and-reload patterns
+- Making the pipeline resilient to a fresh environment — connecting to `master` for database creation instead of assuming the target database already exists
 - Knowing when DAX is necessary versus when native Power BI aggregation on raw columns is sufficient
 
 ---

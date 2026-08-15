@@ -5,17 +5,32 @@ import urllib
 from sqlalchemy import create_engine, text
 
 # =====================================================
-# DATABASE CONNECTION
+# DATABASE CONNECTIONS
 # =====================================================
 
+# Connects to master — used ONLY for schema creation,
+# since CBS may not exist yet on a fresh machine.
+# AUTOCOMMIT is required because CREATE DATABASE
+# cannot run inside an explicit transaction.
+master_params = urllib.parse.quote_plus(
+    "DRIVER={ODBC Driver 17 for SQL Server};"
+    "SERVER=localhost;"
+    "DATABASE=master;"
+    "Trusted_Connection=yes;"
+)
+master_engine = create_engine(
+    f"mssql+pyodbc:///?odbc_connect={master_params}",
+    isolation_level="AUTOCOMMIT"
+)
+
+# Connects to CBS — used for everything after the
+# database itself is guaranteed to exist.
 params = urllib.parse.quote_plus(
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=localhost;"
     "DATABASE=CBS;"
     "Trusted_Connection=yes;"
 )
-
-
 engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
 
 
@@ -23,7 +38,7 @@ engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
 # FUNCTION TO EXECUTE SQL FILE
 # =====================================================
 
-def execute_sql_file(filename):
+def execute_sql_file(filename, use_engine):
     print(f"\nExecuting {filename}...")
 
     start = datetime.now()
@@ -35,7 +50,7 @@ def execute_sql_file(filename):
         # Split SQL batches using GO
         batches = [batch.strip() for batch in sql.split("GO") if batch.strip()]
 
-        with engine.begin() as conn:
+        with use_engine.begin() as conn:
             for batch in batches:
                 conn.execute(text(batch))
 
@@ -56,7 +71,6 @@ def execute_sql_file(filename):
 scripts = [
     "Core_banking_transactions.py",
     "Atm_logs.py",
-    
 ]
 
 
@@ -69,10 +83,12 @@ print(f"Pipeline Started : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print("=" * 60)
 
 # -----------------------------------------------------
-# STEP 1 - CREATE TABLES
+# STEP 1 - CREATE DATABASE + TABLES
+# Uses master_engine so this works even if CBS
+# doesn't exist yet
 # -----------------------------------------------------
 
-execute_sql_file("Schema_new.sql")
+execute_sql_file("Schema_new.sql", master_engine)
 
 # -----------------------------------------------------
 # STEP 2 - RUN PYTHON FILES
@@ -99,9 +115,10 @@ for script in scripts:
 
 # -----------------------------------------------------
 # STEP 3 - CREATE VIEWS
+# Uses engine (CBS) since the database now exists
 # -----------------------------------------------------
 
-execute_sql_file("Views_new.sql")
+execute_sql_file("Views_new.sql", engine)
 
 # =====================================================
 # PIPELINE COMPLETE
